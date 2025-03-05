@@ -1,199 +1,221 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZPlayer Video Loader</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #1a1a1a;
-            color: white;
-            min-height: 100vh;
-            margin: 0;
-            padding: 2rem;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Películas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        .player-container {
-            width: 100%;
-            max-width: 800px;
-            margin-top: 2rem;
-        }
+    body {
+      background-color: #000; /* Fondo negro */
+      color: #fff;
+      padding: 2rem;
+    }
 
-        #videoFrame {
-            width: 100%;
-            height: 450px;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-        }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-        .input-group {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            width: 100%;
-            max-width: 500px;
-        }
+    h1 {
+      text-align: center;
+      color: #4B0082; /* Violeta oscuro */
+      margin-bottom: 2rem;
+      font-size: 2.5em;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
 
-        input {
-            flex: 1;
-            padding: 12px 20px;
-            border: 2px solid #444;
-            border-radius: 8px;
-            background: #333;
-            color: white;
-            font-size: 16px;
-        }
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
 
-        button {
-            padding: 12px 24px;
-            background: #00a8ff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.2s, background 0.2s;
-        }
+    .movie-card {
+      background: #1a1a1a; /* Tonos oscuros para la tarjeta */
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #4B0082;
+      box-shadow: 0 4px 12px rgba(75, 0, 130, 0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      padding: 1.5rem;
+      text-align: center;
+    }
 
-        button:hover {
-            background: #0093d6;
-            transform: translateY(-2px);
-        }
+    .movie-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px rgba(75, 0, 130, 0.7);
+    }
 
-        h1 {
-            margin-bottom: 2rem;
-            text-align: center;
-        }
+    .movie-title {
+      font-size: 1.2em;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
 
-        .playlist-container {
-            width: 100%;
-            max-width: 500px;
-            margin-top: 1rem;
-        }
+    .movie-genre {
+      color: #bbb;
+      font-size: 0.95em;
+    }
 
-        #playlist {
-            list-style: none;
-            padding: 0;
-            background: #333;
-            border-radius: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
+    /* Estilos para el reproductor */
+    .player-section {
+      display: none; /* Oculta el reproductor inicialmente */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
 
-        .playlist-item {
-            padding: 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #444;
-            transition: background 0.2s;
-        }
+    .player-container {
+      width: 90%;
+      max-width: 800px;
+      aspect-ratio: 16/9;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
 
-        .playlist-item:hover {
-            background: #444;
-        }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
 
-        .playlist-item.active {
-            background: #007bff;
-            border-left: 4px solid #00a8ff;
-        }
+    /* Botón de volver */
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(128, 0, 128, 0.5);
+      border: none;
+      border-radius: 25px;
+      padding: 8px 16px 8px 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background 0.3s ease;
+      color: white;
+      font-family: Arial, sans-serif;
+      gap: 4px;
+    }
 
-        .file-input {
-            margin-bottom: 1rem;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    .back-button:hover {
+      background: rgba(128, 0, 128, 0.7);
+    }
+
+    .back-button svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    .back-button span {
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <h1>Reproductor ZPlayer</h1>
-    
-    <div class="input-group">
-        <input type="text" id="videoId" placeholder="Ingresa el ID del video">
-        <button onclick="loadVideo()">Cargar</button>
-    </div>
 
-    <div class="file-input">
-        <input type="file" id="excelUpload" accept=".xlsx,.xls" style="color: white;">
+  <!-- Sección de Catálogo -->
+  <div class="container" id="catalog-section">
+    <h1>Catálogo de Películas</h1>
+    <div class="movie-grid" id="movieContainer">
+      <div class="loading">Cargando películas...</div>
     </div>
+  </div>
 
+  <!-- Sección del Reproductor -->
+  <div class="player-section" id="player-section">
+    <button onclick="showCatalog()" class="back-button" title="Volver al catálogo">
+      <svg viewBox="0 0 24 24">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+      <span>Volver</span>
+    </button>
+    <h1 id="movie-title">Título de la Película</h1>
     <div class="player-container">
-        <iframe id="videoFrame" allowfullscreen></iframe>
+      <iframe id="videoFrame" allowfullscreen allow="autoplay; encrypted-media;"></iframe>
     </div>
+  </div>
 
-    <div class="playlist-container">
-        <ul id="playlist"></ul>
-    </div>
+  <script>
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlIMeGgNv9yl2mVwPngNUFmsDTKkwzBQXbomWz9Xll-ZVRSkDvDIGmaCmIlcK32y4Krkf_N9gryp9W/pub?output=csv';
+    const PLAYER_BASE_URL = 'https://zplayer.io/?v=';
 
-    <script>
-        let playlist = [];
-        let currentVideoId = null;
+    async function loadMovies() {
+      try {
+        const response = await fetch(SHEET_URL);
+        if (!response.ok) throw new Error('Error al cargar los datos');
+        const csvData = await response.text();
+        
+        const movies = csvToJson(csvData);
+        const container = document.getElementById('movieContainer');
+        container.innerHTML = '';
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const fileId = '2PACX-1vTlIMeGgNv9yl2mVwPngNUFmsDTKkwzBQXbomWz9Xll-ZVRSkDvDIGmaCmIlcK32y4Krkf_N9gryp9W'; // Reemplazar con ID de Google Drive
-                const response = await fetch(`https://docs.google.com/spreadsheets/d/e/${fileId}/pub?output=xlsx`);
-                const data = await response.arrayBuffer();
-                
-                const workbook = XLSX.read(new Uint8Array(data), {type: 'array'});
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
-                
-                playlist = jsonData.slice(1).map(row => ({ name: row[0], id: row[1] }));
-                updatePlaylistUI();
-                
-                // Reproducir primer video automáticamente
-                if(playlist.length > 0) loadVideo(playlist[0].id);
-                
-            } catch (error) {
-                console.error('Error cargando lista:', error);
-                alert('Error al cargar lista de reproducción');
-            }
+        movies.forEach(movie => {
+          if (!movie.ID || !movie.TITULO) return;
+          
+          const card = document.createElement('div');
+          card.className = 'movie-card';
+          card.innerHTML = `
+            <h3 class="movie-title">${movie.TITULO}</h3>
+            ${movie.GENERO ? `<p class="movie-genre">${movie.GENERO}</p>` : ''}
+          `;
+
+          // Al hacer clic, se muestra el reproductor con la película seleccionada
+          card.addEventListener('click', () => {
+            showPlayer(movie.TITULO, movie.ID);
+          });
+
+          container.appendChild(card);
         });
 
-        function loadVideo(id) {
-            const videoId = id || document.getElementById('videoId').value.trim();
-            if (!videoId) return;
-            
-            currentVideoId = videoId;
-            const iframe = document.getElementById('videoFrame');
-            iframe.src = `https://zplayer.io/?v=${encodeURIComponent(videoId)}`;
-            updatePlaylistUI();
-        }
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('movieContainer').innerHTML = `<div class="loading">Error al cargar el catálogo: ${error.message}</div>`;
+      }
+    }
 
-        function handleFile(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
-                
-                playlist = jsonData.slice(1).map(row => ({ name: row[0], id: row[1] }));
-                updatePlaylistUI();
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
+    function csvToJson(csv) {
+      const lines = csv.split('\n').filter(line => line.trim() !== '');
+      const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
+      
+      return lines.slice(1).map(line => {
+        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        return headers.reduce((obj, header, index) => {
+          obj[header] = (values[index] || '').trim().replace(/^"(.*)"$/, '$1');
+          return obj;
+        }, {});
+      });
+    }
 
-        function updatePlaylistUI() {
-            const playlistElement = document.getElementById('playlist');
-            playlistElement.innerHTML = playlist.map((item, index) => `
-                <li class="playlist-item ${currentVideoId === item.id ? 'active' : ''}" 
-                    onclick="loadVideo('${item.id}')">
-                    ${index + 1}. ${item.name}
-                </li>
-            `).join('');
-        }
+    function showPlayer(title, id) {
+      document.getElementById('movie-title').innerText = title;
+      document.getElementById('videoFrame').src = `${PLAYER_BASE_URL}${encodeURIComponent(id.trim())}`;
+      document.getElementById('catalog-section').style.display = 'none';
+      document.getElementById('player-section').style.display = 'flex';
+    }
 
-        document.getElementById('videoId').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadVideo();
-        });
+    function showCatalog() {
+      // Reiniciar el iframe para que el video anterior se detenga y se cargue de nuevo al seleccionar otra película
+      document.getElementById('videoFrame').src = "";
+      document.getElementById('catalog-section').style.display = 'block';
+      document.getElementById('player-section').style.display = 'none';
+    }
 
-        document.getElementById('excelUpload').addEventListener('change', handleFile);
-    </script>
+    loadMovies();
+  </script>
+
 </body>
 </html>
