@@ -3,103 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo de Películas y Series</title>
+  <title>Catálogo Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-violet: #7b2cbf;
+      --violet-dark: #5a189a;
+      --violet-light: #9d4edd;
+      --violet-soft: #e0aaff;
+      --dark-bg: #121212;
+      --card-bg: #1e1e1e;
+      --text-light: #f8f9fa;
+      --text-muted: #adb5bd;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     body {
-      background-color: #000;
-      color: #fff;
+      background-color: var(--dark-bg);
+      color: var(--text-light);
+      font-family: 'Montserrat', sans-serif;
+      line-height: 1.6;
       padding: 2rem;
+      min-height: 100vh;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
+      padding: 0 20px;
     }
 
     h1 {
       text-align: center;
-      color: #4B0082;
-      margin-bottom: 2rem;
-      font-size: 2.5em;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+      color: var(--violet-light);
+      margin-bottom: 2.5rem;
+      font-size: 2.8rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      position: relative;
+      padding-bottom: 15px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--violet-dark), var(--violet-soft));
+      border-radius: 2px;
     }
 
     h2.section-title {
-      color: #6a1b9a;
-      margin: 2rem 0 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #4B0082;
+      text-align: center;
+      color: var(--violet-soft);
+      margin: 3rem 0 1.5rem;
+      font-size: 2rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    h2.section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: var(--violet-light);
+      border-radius: 2px;
     }
 
     .movie-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 3rem;
+      gap: 2rem;
+      margin-bottom: 4rem;
     }
 
     .movie-card {
-      background: #1a1a1a;
+      background: var(--card-bg);
       border-radius: 12px;
       overflow: hidden;
-      border: 1px solid #4B0082;
-      box-shadow: 0 4px 12px rgba(75, 0, 130, 0.5);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       cursor: pointer;
       text-align: center;
+      position: relative;
+      border: 1px solid rgba(123, 44, 191, 0.2);
     }
 
     .movie-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 16px rgba(75, 0, 130, 0.7);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 28px rgba(123, 44, 191, 0.4);
+      border-color: var(--violet-light);
     }
 
     .movie-cover {
       width: 100%;
-      height: 200px;
+      height: 380px;
       object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .movie-card:hover .movie-cover {
+      transform: scale(1.03);
     }
 
     .movie-title {
-      font-size: 1.2em;
-      color: #fff;
-      margin: 0.8rem 0 0.5rem;
-      padding: 0 10px;
+      font-size: 1.1rem;
+      color: var(--text-light);
+      margin: 1.2rem 0;
+      padding: 0 15px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     .search-bar {
-      max-width: 500px;
-      margin: 0 auto 2rem;
-      padding: 0 1rem;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      position: relative;
     }
     
     #searchInput {
       width: 100%;
-      padding: 12px 20px;
-      border-radius: 25px;
-      border: 2px solid #4B0082;
-      background-color: #1a1a1a;
-      color: white;
-      font-size: 1em;
+      padding: 15px 25px;
+      border-radius: 30px;
+      border: none;
+      background-color: rgba(30, 30, 30, 0.8);
+      color: var(--text-light);
+      font-size: 1rem;
       outline: none;
       transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(123, 44, 191, 0.3);
     }
     
     #searchInput:focus {
-      border-color: #6a1b9a;
-      box-shadow: 0 0 10px rgba(106, 27, 154, 0.5);
+      box-shadow: 0 4px 20px rgba(123, 44, 191, 0.4);
+      border-color: var(--violet-light);
     }
     
     #searchInput::placeholder {
-      color: #bbb;
+      color: var(--text-muted);
     }
 
     /* Estilos para el reproductor */
@@ -109,14 +168,22 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      background: var(--dark-bg);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      padding: 2rem;
     }
 
     .player-container {
       width: 90%;
-      max-width: 800px;
+      max-width: 1000px;
       aspect-ratio: 16/9;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(123, 44, 191, 0.3);
+      border-radius: 12px;
       overflow: hidden;
       position: relative;
     }
@@ -130,41 +197,77 @@
     /* Botón de volver */
     .back-button {
       position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(128, 0, 128, 0.5);
+      top: 30px;
+      left: 30px;
+      background: rgba(123, 44, 191, 0.7);
       border: none;
-      border-radius: 25px;
-      padding: 8px 16px 8px 12px;
+      border-radius: 30px;
+      padding: 12px 24px 12px 18px;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
       color: white;
-      gap: 4px;
+      gap: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      z-index: 1001;
     }
 
     .back-button:hover {
-      background: rgba(128, 0, 128, 0.7);
+      background: rgba(123, 44, 191, 0.9);
+      transform: translateX(-3px);
     }
 
     .back-button svg {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       fill: white;
+      transition: transform 0.3s ease;
     }
 
-    .back-button span {
-      font-weight: bold;
+    .back-button:hover svg {
+      transform: translateX(-3px);
     }
+
+    #movie-title {
+      color: var(--violet-light);
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 80%;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Efecto de carga */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .movie-card {
+      animation: fadeIn 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .movie-card:nth-child(1) { animation-delay: 0.1s; }
+    .movie-card:nth-child(2) { animation-delay: 0.2s; }
+    .movie-card:nth-child(3) { animation-delay: 0.3s; }
+    .movie-card:nth-child(4) { animation-delay: 0.4s; }
+    .movie-card:nth-child(5) { animation-delay: 0.5s; }
+    .movie-card:nth-child(6) { animation-delay: 0.6s; }
   </style>
 </head>
 <body>
 
   <!-- Sección de Catálogo -->
   <div class="container" id="catalog-section">
-    <h1>Catálogo de Películas y Series</h1>
+    <h1>Catálogo Premium</h1>
     
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="Buscar películas o series...">
@@ -192,10 +295,10 @@
   </div>
 
   <script>
+    // (El código JavaScript permanece igual que en la versión anterior)
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlIMeGgNv9yl2mVwPngNUFmsDTKkwzBQXbomWz9Xll-ZVRSkDvDIGmaCmIlcK32y4Krkf_N9gryp9W/pub?output=csv';
     const PLAYER_BASE_URL = 'https://zplayer.io/?v=';
 
-    // Función que carga los contenidos desde el CSV de Google Sheets
     async function loadContents() {
       try {
         const response = await fetch(SHEET_URL);
@@ -209,37 +312,36 @@
         moviesContainer.innerHTML = '';
         seriesContainer.innerHTML = '';
 
-        contents.forEach(item => {
+        contents.sort((a, b) => a.TITULO.localeCompare(b.TITULO));
+
+        contents.forEach((item, index) => {
           if (!item.ID || !item.TITULO) return;
 
           const card = document.createElement('div');
           card.className = 'movie-card';
+          card.style.animationDelay = `${(index % 6) * 0.1}s`;
 
-          // Crear el elemento de imagen para la portada
           const img = document.createElement('img');
           img.className = 'movie-cover';
           img.alt = `Portada de ${item.TITULO}`;
-          img.src = 'https://via.placeholder.com/280x200?text=Sin+portada';
+          img.src = 'https://via.placeholder.com/280x380/1e1e1e/666666?text=Cargando...';
+          img.loading = 'lazy';
 
-          // Consultar la portada automáticamente usando TMDb API
           getPoster(item.TITULO, item.TIPO).then(posterUrl => {
             img.src = posterUrl;
           });
 
           card.appendChild(img);
 
-          // Agregar título
           const titleElement = document.createElement('h3');
           titleElement.className = 'movie-title';
           titleElement.innerText = item.TITULO;
           card.appendChild(titleElement);
 
-          // Al hacer clic se muestra el reproductor con el contenido seleccionado
           card.addEventListener('click', () => {
             showPlayer(item.TITULO, item.ID);
           });
 
-          // Agregar al contenedor correspondiente según el tipo
           if (item.TIPO && item.TIPO.toUpperCase() === 'SERIE') {
             seriesContainer.appendChild(card);
           } else {
@@ -249,11 +351,13 @@
 
       } catch (error) {
         console.error('Error:', error);
-        document.getElementById('moviesContainer').innerHTML = `<div class="loading">Error al cargar el catálogo: ${error.message}</div>`;
+        document.getElementById('moviesContainer').innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; color: var(--violet-light); font-weight: 600;">
+            Error al cargar el catálogo: ${error.message}
+          </div>`;
       }
     }
 
-    // Función que convierte el CSV a JSON
     function csvToJson(csv) {
       const lines = csv.split('\n').filter(line => line.trim() !== '');
       const headers = lines[0].split(',').map(h => h.trim().toUpperCase());
@@ -267,17 +371,15 @@
       });
     }
 
-    // Función que consulta la portada del contenido
     async function getPoster(title, type) {
       const apiKey = '115b9aa888deb4d8277641eb93d9beb0';
       try {
-        // Determinar el endpoint según el tipo
         const endpoint = type && type.toUpperCase() === 'SERIE' 
           ? 'search/tv' 
           : 'search/movie';
         
         const response = await fetch(
-          `https://api.themoviedb.org/3/${endpoint}?api_key=${apiKey}&query=${encodeURIComponent(title)}`
+          `https://api.themoviedb.org/3/${endpoint}?api_key=${apiKey}&query=${encodeURIComponent(title)}&language=es`
         );
         const data = await response.json();
         
@@ -287,28 +389,27 @@
             return `https://image.tmdb.org/t/p/w500${posterPath}`;
           }
         }
-        return 'https://via.placeholder.com/280x200?text=Sin+portada';
+        return 'https://via.placeholder.com/280x380/1e1e1e/666666?text=Sin+portada';
       } catch (error) {
-        return 'https://via.placeholder.com/280x200?text=Sin+portada';
+        return 'https://via.placeholder.com/280x380/1e1e1e/666666?text=Sin+portada';
       }
     }
 
-    // Función para mostrar el reproductor con el contenido seleccionado
     function showPlayer(title, id) {
       document.getElementById('movie-title').innerText = title;
       document.getElementById('videoFrame').src = `${PLAYER_BASE_URL}${encodeURIComponent(id.trim())}`;
       document.getElementById('catalog-section').style.display = 'none';
       document.getElementById('player-section').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     }
 
-    // Función para volver al catálogo y reiniciar el iframe
     function showCatalog() {
       document.getElementById('videoFrame').src = "";
       document.getElementById('catalog-section').style.display = 'block';
       document.getElementById('player-section').style.display = 'none';
+      document.body.style.overflow = 'auto';
     }
 
-    // Función para filtrar contenidos
     function filterContents() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       const contentCards = document.querySelectorAll('.movie-card');
@@ -319,11 +420,18 @@
       });
     }
 
-    // Cargar los contenidos al iniciar
-    loadContents();
-
-    // Añadir evento de búsqueda
-    document.getElementById('searchInput').addEventListener('input', filterContents);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadContents();
+      document.getElementById('searchInput').addEventListener('input', filterContents);
+      
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('focus', () => {
+        searchInput.placeholder = 'Ej: El Padrino, Breaking Bad...';
+      });
+      searchInput.addEventListener('blur', () => {
+        searchInput.placeholder = 'Buscar películas o series...';
+      });
+    });
   </script>
 </body>
 </html>
