@@ -90,7 +90,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 2rem;
-      margin-bottom: 4rem;
+      margin-bottom: 2rem;
     }
 
     .movie-card {
@@ -103,6 +103,12 @@
       text-align: center;
       position: relative;
       border: 1px solid rgba(123, 44, 191, 0.2);
+      display: none; /* Ocultamos todas las cards inicialmente */
+    }
+
+    .movie-card.visible {
+      display: block; /* Mostramos solo las cards visibles */
+      animation: fadeIn 0.5s ease forwards;
     }
 
     .movie-card:hover {
@@ -155,6 +161,31 @@
       padding: 3px 8px;
       border-radius: 12px;
       font-style: italic;
+    }
+
+    .load-more {
+      display: block;
+      margin: 0 auto 3rem;
+      padding: 12px 30px;
+      background: var(--violet-dark);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .load-more:hover {
+      background: var(--violet-light);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(123, 44, 191, 0.4);
+    }
+
+    .load-more.hidden {
+      display: none;
     }
 
     .search-bar {
@@ -275,18 +306,6 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    .movie-card {
-      animation: fadeIn 0.5s ease forwards;
-      opacity: 0;
-    }
-
-    .movie-card:nth-child(1) { animation-delay: 0.1s; }
-    .movie-card:nth-child(2) { animation-delay: 0.2s; }
-    .movie-card:nth-child(3) { animation-delay: 0.3s; }
-    .movie-card:nth-child(4) { animation-delay: 0.4s; }
-    .movie-card:nth-child(5) { animation-delay: 0.5s; }
-    .movie-card:nth-child(6) { animation-delay: 0.6s; }
   </style>
 </head>
 <body>
@@ -301,9 +320,11 @@
 
     <h2 class="section-title">Películas</h2>
     <div class="movie-grid" id="moviesContainer"></div>
+    <button id="loadMoreMovies" class="load-more hidden">Ver más películas</button>
     
     <h2 class="section-title">Series</h2>
     <div class="movie-grid" id="seriesContainer"></div>
+    <button id="loadMoreSeries" class="load-more hidden">Ver más series</button>
   </div>
 
   <!-- Sección del Reproductor -->
@@ -323,6 +344,13 @@
   <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlIMeGgNv9yl2mVwPngNUFmsDTKkwzBQXbomWz9Xll-ZVRSkDvDIGmaCmIlcK32y4Krkf_N9gryp9W/pub?output=csv';
     const PLAYER_BASE_URL = 'https://zplayer.io/?v=';
+    const ITEMS_PER_PAGE = 10;
+
+    // Variables para controlar la paginación
+    let currentMoviesPage = 0;
+    let currentSeriesPage = 0;
+    let allMovies = [];
+    let allSeries = [];
 
     async function loadContents() {
       try {
@@ -331,72 +359,17 @@
         const csvData = await response.text();
         
         const contents = csvToJson(csvData);
-        const moviesContainer = document.getElementById('moviesContainer');
-        const seriesContainer = document.getElementById('seriesContainer');
         
-        moviesContainer.innerHTML = '';
-        seriesContainer.innerHTML = '';
+        // Separar películas y series
+        allMovies = contents.filter(item => !item.TIPO || item.TIPO.toUpperCase() !== 'SERIE');
+        allSeries = contents.filter(item => item.TIPO && item.TIPO.toUpperCase() === 'SERIE');
 
-        contents.sort((a, b) => a.TITULO.localeCompare(b.TITULO));
+        // Mostrar primeros 10 items
+        showItems('moviesContainer', allMovies, currentMoviesPage);
+        showItems('seriesContainer', allSeries, currentSeriesPage);
 
-        contents.forEach((item, index) => {
-          if (!item.ID || !item.TITULO) return;
-
-          const card = document.createElement('div');
-          card.className = 'movie-card';
-          card.style.animationDelay = `${(index % 6) * 0.1}s`;
-
-          const img = document.createElement('img');
-          img.className = 'movie-cover';
-          img.alt = `Portada de ${item.TITULO}`;
-          img.src = 'https://via.placeholder.com/280x380/1e1e1e/666666?text=Cargando...';
-          img.loading = 'lazy';
-
-          getPoster(item.TITULO, item.TIPO).then(posterUrl => {
-            img.src = posterUrl;
-          });
-
-          card.appendChild(img);
-
-          const infoContainer = document.createElement('div');
-          infoContainer.className = 'movie-info';
-
-          const titleElement = document.createElement('h3');
-          titleElement.className = 'movie-title';
-          titleElement.innerText = item.TITULO;
-          infoContainer.appendChild(titleElement);
-
-          // Agregar año y género si existen
-          const detailsContainer = document.createElement('div');
-          detailsContainer.className = 'movie-details';
-
-          if (item.AÑO) {
-            const yearElement = document.createElement('span');
-            yearElement.className = 'movie-year';
-            yearElement.innerText = item.AÑO;
-            detailsContainer.appendChild(yearElement);
-          }
-
-          if (item.GENERO) {
-            const genreElement = document.createElement('span');
-            genreElement.className = 'movie-genre';
-            genreElement.innerText = item.GENERO;
-            detailsContainer.appendChild(genreElement);
-          }
-
-          infoContainer.appendChild(detailsContainer);
-          card.appendChild(infoContainer);
-
-          card.addEventListener('click', () => {
-            showPlayer(item.TITULO, item.ID);
-          });
-
-          if (item.TIPO && item.TIPO.toUpperCase() === 'SERIE') {
-            seriesContainer.appendChild(card);
-          } else {
-            moviesContainer.appendChild(card);
-          }
-        });
+        // Configurar botones de "Ver más"
+        setupLoadMoreButtons();
 
       } catch (error) {
         console.error('Error:', error);
@@ -405,6 +378,105 @@
             Error al cargar el catálogo: ${error.message}
           </div>`;
       }
+    }
+
+    function showItems(containerId, items, page) {
+      const container = document.getElementById(containerId);
+      const start = page * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE;
+      const itemsToShow = items.slice(start, end);
+
+      // Limpiar solo si es la primera página
+      if (page === 0) {
+        container.innerHTML = '';
+      }
+
+      itemsToShow.forEach((item, index) => {
+        const card = createContentCard(item, start + index);
+        container.appendChild(card);
+      });
+
+      // Mostrar u ocultar botón "Ver más"
+      const loadMoreButton = containerId === 'moviesContainer' 
+        ? document.getElementById('loadMoreMovies') 
+        : document.getElementById('loadMoreSeries');
+      
+      if (end >= items.length) {
+        loadMoreButton.classList.add('hidden');
+      } else {
+        loadMoreButton.classList.remove('hidden');
+      }
+    }
+
+    function createContentCard(item, index) {
+      const card = document.createElement('div');
+      card.className = 'movie-card visible';
+      card.style.animationDelay = `${(index % 6) * 0.1}s`;
+
+      const img = document.createElement('img');
+      img.className = 'movie-cover';
+      img.alt = `Portada de ${item.TITULO}`;
+      img.src = 'https://via.placeholder.com/280x380/1e1e1e/666666?text=Cargando...';
+      img.loading = 'lazy';
+
+      getPoster(item.TITULO, item.TIPO).then(posterUrl => {
+        img.src = posterUrl;
+      });
+
+      card.appendChild(img);
+
+      const infoContainer = document.createElement('div');
+      infoContainer.className = 'movie-info';
+
+      const titleElement = document.createElement('h3');
+      titleElement.className = 'movie-title';
+      titleElement.innerText = item.TITULO;
+      infoContainer.appendChild(titleElement);
+
+      const detailsContainer = document.createElement('div');
+      detailsContainer.className = 'movie-details';
+
+      if (item.AÑO) {
+        const yearElement = document.createElement('span');
+        yearElement.className = 'movie-year';
+        yearElement.innerText = item.AÑO;
+        detailsContainer.appendChild(yearElement);
+      }
+
+      if (item.GENERO) {
+        const genreElement = document.createElement('span');
+        genreElement.className = 'movie-genre';
+        genreElement.innerText = item.GENERO;
+        detailsContainer.appendChild(genreElement);
+      }
+
+      infoContainer.appendChild(detailsContainer);
+      card.appendChild(infoContainer);
+
+      card.addEventListener('click', () => {
+        showPlayer(item.TITULO, item.ID);
+      });
+
+      return card;
+    }
+
+    function setupLoadMoreButtons() {
+      const loadMoreMoviesBtn = document.getElementById('loadMoreMovies');
+      const loadMoreSeriesBtn = document.getElementById('loadMoreSeries');
+
+      loadMoreMoviesBtn.addEventListener('click', () => {
+        currentMoviesPage++;
+        showItems('moviesContainer', allMovies, currentMoviesPage);
+      });
+
+      loadMoreSeriesBtn.addEventListener('click', () => {
+        currentSeriesPage++;
+        showItems('seriesContainer', allSeries, currentSeriesPage);
+      });
+
+      // Mostrar u ocultar botones inicialmente
+      loadMoreMoviesBtn.classList.toggle('hidden', allMovies.length <= ITEMS_PER_PAGE);
+      loadMoreSeriesBtn.classList.toggle('hidden', allSeries.length <= ITEMS_PER_PAGE);
     }
 
     function csvToJson(csv) {
