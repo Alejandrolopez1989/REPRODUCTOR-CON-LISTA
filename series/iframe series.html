@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor con Capítulos</title>
+  <style>
+    :root {
+      --primary-violet: #7b2cbf;
+      --violet-dark: #5a189a;
+      --violet-light: #9d4edd;
+      --violet-soft: #e0aaff;
+      --dark-bg: #121212;
+      --card-bg: #1e1e1e;
+      --text-light: #f8f9fa;
+      --text-muted: #adb5bd;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      color: var(--text-light);
+      font-family: 'Montserrat', sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .series-title {
+      color: var(--violet-light);
+      margin-bottom: 1rem;
+      font-size: 2rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .series-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--violet-dark), var(--violet-soft));
+      border-radius: 2px;
+    }
+
+    /* Estilos del reproductor */
+    .player-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      box-shadow: 0 10px 30px rgba(123, 44, 191, 0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 2rem;
+      background: #000;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Estilos de la lista de capítulos */
+    .chapters-container {
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .chapters-title {
+      color: var(--violet-soft);
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    .chapter-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+    }
+
+    .chapter-item {
+      background: rgba(30, 30, 30, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(123, 44, 191, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .chapter-item:hover {
+      background: rgba(123, 44, 191, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(123, 44, 191, 0.2);
+    }
+
+    .chapter-item.active {
+      background: rgba(123, 44, 191, 0.4);
+      border-color: var(--violet-light);
+    }
+
+    /* Botón de volver */
+    .back-button {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      background: rgba(123, 44, 191, 0.7);
+      border: none;
+      border-radius: 30px;
+      padding: 12px 24px 12px 18px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+      color: white;
+      gap: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+    }
+
+    .back-button:hover {
+      background: rgba(123, 44, 191, 0.9);
+      transform: translateX(-3px);
+    }
+
+    .back-button svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      transition: transform 0.3s ease;
+    }
+
+    .back-button:hover svg {
+      transform: translateX(-3px);
+    }
+
+    /* Mensaje cuando no hay video seleccionado */
+    .empty-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      text-align: center;
+      width: 100%;
+      padding: 0 20px;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="history.back()" class="back-button" title="Volver atrás">
+    <svg viewBox="0 0 24 24">
+      <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+    </svg>
+    <span>Volver</span>
+  </button>
+
+  <div class="container">
+    <!-- Título fijo de la serie que no cambiará -->
+    <h1 class="series-title">Mi Serie Favorita</h1>
+    
+    <div class="player-container">
+      <div class="empty-message">Selecciona un capítulo para comenzar</div>
+      <iframe id="video-player" allowfullscreen></iframe>
+    </div>
+    
+    <div class="chapters-container">
+      <h2 class="chapters-title">Lista de Capítulos</h2>
+      <ul class="chapter-list" id="chapter-list">
+        <!-- Los capítulos se generarán con JavaScript -->
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Array con 10 capítulos (solo necesitamos el ID)
+    const chapters = [
+      { id: "Lw6wIISPX" },
+      { id: "abc123def" },
+      { id: "xyz456uvw" },
+      { id: "ijk789lmn" },
+      { id: "opq012rst" },
+      { id: "cba987fed" },
+      { id: "zyx654wvu" },
+      { id: "nml321kjih" },
+      { id: "tsr210qpo" },
+      { id: "def543abc" }
+    ];
+
+    // Elementos del DOM
+    const videoPlayer = document.getElementById('video-player');
+    const chapterList = document.getElementById('chapter-list');
+    const emptyMessage = document.querySelector('.empty-message');
+
+    // Función para cargar un capítulo
+    function loadChapter(chapter, element) {
+      // Ocultar mensaje de vacío
+      emptyMessage.style.display = 'none';
+      
+      // Cargar el video en el iframe
+      videoPlayer.src = `https://zplayer.io/?v=${chapter.id}`;
+      
+      // Actualizar la clase active en los capítulos
+      document.querySelectorAll('.chapter-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      element.classList.add('active');
+    }
+
+    // Renderizar la lista de capítulos
+    chapters.forEach((chapter, index) => {
+      const li = document.createElement('li');
+      li.className = 'chapter-item';
+      li.textContent = `Capítulo ${index + 1}`;
+      li.addEventListener('click', function() {
+        loadChapter(chapter, this);
+      });
+      chapterList.appendChild(li);
+    });
+
+    // Opcional: Cargar el primer capítulo automáticamente
+    // if (chapters.length > 0) {
+    //   const firstChapter = chapters[0];
+    //   const firstElement = chapterList.firstElementChild;
+    //   loadChapter(firstChapter, firstElement);
+    // }
+  </script>
+</body>
+</html>
